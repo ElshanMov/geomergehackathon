@@ -39,7 +39,8 @@ export function Cockpit() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
-  const [activeLayers, setActiveLayers] = useState<Set<string>>(() => new Set(['L1', 'L2', 'L3', 'L4', 'L6']));
+  // L6 (Kəskin hava problemi riski) default söndürülmüş — istifadəçi panel-dən aça bilər.
+  const [activeLayers, setActiveLayers] = useState<Set<string>>(() => new Set(['L1', 'L2', 'L3', 'L4']));
   const [variant, setVariant] = useState<Variant>('A');
   const [feedOpen, setFeedOpen] = useState(true);
   const [panelOpen, setPanelOpen] = useState(true);

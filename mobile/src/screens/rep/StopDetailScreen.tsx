@@ -24,6 +24,7 @@ export function StopDetailScreen() {
   const [photo, setPhoto] = useState(false);
   const [rec, setRec] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [noteBusy, setNoteBusy] = useState(false);
 
   const toggle = (i: number) => setChecks((s) => ({ ...s, [i]: !s[i] }));
 
@@ -37,6 +38,21 @@ export function StopDetailScreen() {
     } catch (e) {
       toast('Xəta: ' + (e as Error).message);
       setBusy(false);
+    }
+  };
+
+  // Statusu dəyişmədən qeyd əlavə et — web drawer timeline-ında dərhal görünür.
+  const sendNote = async () => {
+    if (!note.trim() || noteBusy) return;
+    setNoteBusy(true);
+    try {
+      await api.advanceStatus(stop.id, { status: stop.status, actor: user?.userId, note: note.trim() });
+      toast('Qeyd operatora göndərildi');
+      setNote('');
+    } catch (e) {
+      toast('Xəta: ' + (e as Error).message);
+    } finally {
+      setNoteBusy(false);
     }
   };
 
@@ -122,6 +138,15 @@ export function StopDetailScreen() {
           placeholderTextColor={colors.slate400}
           style={styles.textarea}
         />
+        <TouchableOpacity
+          onPress={sendNote}
+          disabled={!note.trim() || noteBusy}
+          activeOpacity={0.8}
+          style={[styles.noteSend, { opacity: note.trim() && !noteBusy ? 1 : 0.5 }]}
+        >
+          <Icon name="send" size={15} color={FIELD} />
+          <Text style={styles.noteSendText}>{noteBusy ? 'Göndərilir…' : 'Qeydi operatora göndər'}</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.footer}>
@@ -199,6 +224,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlignVertical: 'top',
   },
+  noteSend: {
+    marginTop: 10,
+    height: 42,
+    borderRadius: 11,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 1,
+    borderColor: FIELD,
+  },
+  noteSendText: { fontSize: 13, fontWeight: '700', color: FIELD },
   footer: { padding: 14, borderTopWidth: 1, borderTopColor: colors.border, gap: 8 },
   warn: { fontSize: 11, color: '#B45309', textAlign: 'center' },
   btn: {

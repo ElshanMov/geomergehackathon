@@ -6,7 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { api } from '../../api/client';
 import type { Incident } from '../../api/types';
-import { LIFECYCLE, statusMeta } from '../../data/meta';
+import { statusMeta } from '../../data/meta';
 import { Icon } from '../../components/Icon';
 import { Card, PriorityDot } from '../../components/ui';
 import { colors } from '../../theme/tokens';
@@ -20,26 +20,16 @@ interface Step {
   cur: boolean;
 }
 
+// Yalnız real baş vermiş əməliyyatlar (timeline) göstərilir — gələcək/gözlənilən
+// lifecycle addımları siyahıya əlavə edilmir. Yeni status əlavə olunduqca davamlı uzanır.
 function buildSteps(inc: Incident): Step[] {
-  const done: Step[] = inc.timeline.map((e, i) => ({
+  return inc.timeline.map((e, i) => ({
     label: statusMeta(e.step).label,
     sub: e.note || '—',
     time: e.t,
     done: true,
     cur: i === inc.timeline.length - 1 && inc.status !== 'archived',
   }));
-  const idx = LIFECYCLE.findIndex((s) => s.id === inc.status);
-  const pending: Step[] =
-    idx >= 0 && inc.status !== 'cancelled'
-      ? LIFECYCLE.slice(idx + 1).map((s) => ({
-          label: s.label,
-          sub: 'Gözlənilir',
-          time: '—',
-          done: false,
-          cur: false,
-        }))
-      : [];
-  return [...done, ...pending];
 }
 
 export function RequestDetailScreen() {

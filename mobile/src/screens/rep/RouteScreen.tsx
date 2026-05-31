@@ -9,8 +9,9 @@ import { Icon } from '../../components/Icon';
 import { MapWebView } from '../../components/MapWebView';
 import type { MapWebViewHandle } from '../../components/MapWebView';
 import { colors } from '../../theme/tokens';
+import { useAuth } from '../../auth/AuthContext';
 import type { RepNav } from '../../navigation/types';
-import { ACTIVE_FIELD_STATUSES, toStop } from '../../data/repTasks';
+import { TERMINAL_STATUSES, toStop } from '../../data/repTasks';
 import type { RepStop } from '../../data/repTasks';
 import { FIELD, FIELD_DARK, FIELD_LIGHT, PrioTag } from './parts';
 
@@ -44,25 +45,31 @@ setTimeout(function(){map.invalidateSize();},120);
 export function RouteScreen() {
   const insets = useSafeAreaInsets();
   const nav = useNavigation<RepNav>();
+  const { user } = useAuth();
   const webRef = useRef<MapWebViewHandle>(null);
   const [stops, setStops] = useState<RepStop[]>([]);
   const [done, setDone] = useState(0);
   const [html, setHtml] = useState<string>(() => repRouteHtml([]));
 
+  // Marşrut = web tərəfindən bu nümayəndəyə təyin olunmuş, hələ bitməmiş müraciətlər.
+  // (Web "İdarəetmə" PATCH-i status dəyişmədən icraçı təyin edə bilir — ona görə
+  //  statusla deyil, assignee + qeyri-terminal status ilə süzürük.)
   const load = useCallback(() => {
+    const me = user?.userId;
     api
       .incidents()
       .then((all) => {
-        const active = all.filter((i) => ACTIVE_FIELD_STATUSES.includes(i.status));
+        const mine = all.filter((i) => i.assignee === me);
+        const active = mine.filter((i) => !TERMINAL_STATUSES.includes(i.status));
         active.sort((a, b) => (RANK[a.priority] ?? 9) - (RANK[b.priority] ?? 9));
         setStops(active.map(toStop));
-        setDone(all.filter((i) => i.status === 'resolved' || i.status === 'archived').length);
+        setDone(mine.filter((i) => i.status === 'resolved' || i.status === 'archived').length);
       })
       .catch(() => {
         setStops([]);
         setDone(0);
       });
-  }, []);
+  }, [user?.userId]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => { setHtml(repRouteHtml(stops)); }, [stops]);
