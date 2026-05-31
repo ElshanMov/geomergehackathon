@@ -16,6 +16,7 @@ export interface RepStop {
   confidence: number | null;
   status: string;
   checklist: string[];
+  photoUrls: string[]; // vətəndaşın/müraciətin yüklədiyi şəkillər
 }
 
 export interface RepHistoryItem {
@@ -69,6 +70,7 @@ export function toStop(inc: Incident, i: number): RepStop {
     confidence: inc.aiConfidence,
     status: inc.status,
     checklist: checklistFor(inc.cat),
+    photoUrls: inc.photoUrls ?? [],
   };
 }
 

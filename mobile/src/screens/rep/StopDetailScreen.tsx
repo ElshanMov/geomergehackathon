@@ -1,7 +1,7 @@
 // Nümayəndə → Dayanacaq detalı. Yoxlama siyahısı + foto/səs + məcburi qeyd.
 // "Tamamla" real API-yə yazır (status=resolved) → kokpit bunu dərhal əks etdirir.
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -84,6 +84,17 @@ export function StopDetailScreen() {
             <Text style={{ fontSize: 12.5, color: colors.muted }}>{stop.addr}</Text>
           </View>
         </View>
+
+        {stop.photoUrls.length > 0 ? (
+          <View style={{ marginBottom: 16, gap: 10 }}>
+            <Text style={styles.section}>VƏTƏNDAŞIN ƏLAVƏ ETDİYİ ŞƏKİLLƏR</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {stop.photoUrls.map((src, i) => (
+                <Image key={i} source={{ uri: src }} style={styles.citizenPhoto} />
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
 
         <Text style={styles.section}>
           YOXLAMA SİYAHISI
@@ -192,6 +203,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   section: { fontSize: 12, fontWeight: '700', letterSpacing: 0.4, color: colors.muted },
+  citizenPhoto: { width: 150, height: 110, borderRadius: 10, backgroundColor: colors.slate100 },
   check: {
     flexDirection: 'row',
     alignItems: 'center',
