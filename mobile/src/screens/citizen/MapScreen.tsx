@@ -3,12 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WebView } from 'react-native-webview';
-import type { WebViewMessageEvent } from 'react-native-webview';
 import { api } from '../../api/client';
 import type { GeoJsonLike, Incident, NearbyProblem, Priority } from '../../api/types';
 import { NRM_BOUNDARY } from '../../data/meta';
 import { Icon } from '../../components/Icon';
+import { MapWebView } from '../../components/MapWebView';
+import type { MapWebViewHandle } from '../../components/MapWebView';
 import { Card, NeutralBadge } from '../../components/ui';
 import { colors } from '../../theme/tokens';
 
@@ -65,7 +65,7 @@ setTimeout(function(){map.invalidateSize();},150);
 
 export function MapScreen() {
   const insets = useSafeAreaInsets();
-  const webRef = useRef<WebView>(null);
+  const webRef = useRef<MapWebViewHandle>(null);
   const readyRef = useRef(false);
   const incidentsRef = useRef<Incident[]>([]);
   const [nearby, setNearby] = useState<NearbyProblem[]>([]);
@@ -119,9 +119,9 @@ export function MapScreen() {
     return () => clearTimeout(t);
   }, []);
 
-  const onMessage = (e: WebViewMessageEvent) => {
+  const onMessage = (raw: string) => {
     try {
-      const data = JSON.parse(e.nativeEvent.data) as { type: string; i: number };
+      const data = JSON.parse(raw) as { type: string; i: number };
       if (data.type === 'pin') setDetail(nearby[data.i] ?? null);
     } catch {
       /* yararsız mesaj */
@@ -136,18 +136,15 @@ export function MapScreen() {
   return (
     <View style={{ flex: 1 }}>
       {html ? (
-        <WebView
+        <MapWebView
           ref={webRef}
-          originWhitelist={['*']}
-          source={{ html }}
+          html={html}
           onMessage={onMessage}
           onLoadEnd={() => {
             readyRef.current = true;
             injectIncidents();
           }}
           style={{ flex: 1 }}
-          javaScriptEnabled
-          domStorageEnabled
         />
       ) : (
         <View style={{ flex: 1, backgroundColor: '#EAEFF3' }} />

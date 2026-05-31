@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { WebView } from 'react-native-webview';
-import type { WebViewMessageEvent } from 'react-native-webview';
 import { api } from '../../api/client';
 import { Icon } from '../../components/Icon';
+import { MapWebView } from '../../components/MapWebView';
+import type { MapWebViewHandle } from '../../components/MapWebView';
 import { colors } from '../../theme/tokens';
 import type { RepNav } from '../../navigation/types';
 import { ACTIVE_FIELD_STATUSES, toStop } from '../../data/repTasks';
@@ -44,7 +44,7 @@ setTimeout(function(){map.invalidateSize();},120);
 export function RouteScreen() {
   const insets = useSafeAreaInsets();
   const nav = useNavigation<RepNav>();
-  const webRef = useRef<WebView>(null);
+  const webRef = useRef<MapWebViewHandle>(null);
   const [stops, setStops] = useState<RepStop[]>([]);
   const [done, setDone] = useState(0);
   const [html, setHtml] = useState<string>(() => repRouteHtml([]));
@@ -78,9 +78,9 @@ export function RouteScreen() {
   const openStop = (s: RepStop) =>
     nav.navigate(s.type === 'ai' ? 'AIConfirm' : 'StopDetail', { stop: s });
 
-  const onMessage = (e: WebViewMessageEvent) => {
+  const onMessage = (raw: string) => {
     try {
-      const d = JSON.parse(e.nativeEvent.data) as { type: string; i: number };
+      const d = JSON.parse(raw) as { type: string; i: number };
       if (d.type === 'stop' && stops[d.i]) openStop(stops[d.i]);
     } catch {
       /* yararsız mesaj */
@@ -109,15 +109,7 @@ export function RouteScreen() {
       </View>
 
       <View style={{ height: 180 }}>
-        <WebView
-          ref={webRef}
-          originWhitelist={['*']}
-          source={{ html }}
-          onMessage={onMessage}
-          style={{ flex: 1 }}
-          javaScriptEnabled
-          domStorageEnabled
-        />
+        <MapWebView ref={webRef} html={html} onMessage={onMessage} style={{ flex: 1 }} />
       </View>
 
       <ScrollView
