@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeoMerge — Nərimanov rayonunun rəqəmsal əkizi</title>
+<style>
+  :root{
+    --blue-900:#0E1A6B;
+    --blue-800:#152089;
+    --blue-700:#1B289F;
+    --blue-600:#2540C8;
+    --blue-500:#2563EB;
+    --blue-400:#4F7DF5;
+    --blue-100:#E4ECFE;
+    --blue-50:#F1F5FF;
+    --ink:#0C1330;
+    --slate:#46506E;
+    --mute:#7C86A2;
+    --line:#E4E8F4;
+    --white:#FFFFFF;
+    --paper:#F6F8FE;
+    --green:#16A34A;
+    --green-bg:#E7F7EE;
+    --amber:#D9870A;
+    --amber-bg:#FCF1DC;
+    --red:#E11D2E;
+    --red-bg:#FCE7E9;
+    --radius:18px;
+    --shadow:0 1px 2px rgba(14,26,107,.04),0 12px 30px -12px rgba(21,32,137,.18);
+    --shadow-lg:0 30px 60px -24px rgba(21,32,137,.32);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  h1,h2,h3,h4{font-family:Arial,Helvetica,sans-serif;letter-spacing:0;line-height:1.12}
+  .mono{font-family:Arial,Helvetica,sans-serif}
+
+  /* ---------- top ribbon ---------- */
+  .ribbon{
+    background:var(--blue-700);
+    color:#C9D4FF;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:600;
+    text-align:center;
+    padding:9px 20px;
+  }
+  .ribbon b{color:#fff}
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(120% 120% at 85% -10%, rgba(79,125,245,.18), transparent 55%),
+      linear-gradient(180deg,#fff 0%, var(--blue-50) 100%);
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:46px 46px;
+    opacity:.45;
+    -webkit-mask-image:radial-gradient(120% 90% at 70% 0%,#000 30%,transparent 78%);
+    mask-image:radial-gradient(120% 90% at 70% 0%,#000 30%,transparent 78%);
+  }
+  .hero .wrap{position:relative;padding:54px 28px 60px;display:grid;grid-template-columns:1.15fr .85fr;gap:46px;align-items:center}
+  .brandline{display:flex;align-items:center;gap:13px;margin-bottom:26px}
+  .glyph{
+    width:46px;height:46px;border-radius:13px;
+    background:linear-gradient(150deg,var(--blue-500),var(--blue-700));
+    display:grid;place-items:center;flex:none;
+    box-shadow:0 10px 22px -8px rgba(37,99,235,.6);
+  }
+  .glyph svg{width:26px;height:26px}
+  .brandtxt b{font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:21px;display:block;color:var(--ink)}
+  .brandtxt span{font-size:12px;color:var(--mute);letter-spacing:.04em}
+  .tag{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--blue-100);color:var(--blue-700);
+    font-weight:700;font-size:12.5px;letter-spacing:.02em;
+    padding:7px 14px;border-radius:999px;margin-bottom:20px;
+  }
+  .tag .dot{width:7px;height:7px;border-radius:50%;background:var(--blue-600);box-shadow:0 0 0 4px rgba(37,99,235,.18)}
+  h1.big{font-size:52px;font-weight:800;color:var(--blue-800);margin-bottom:16px}
+  h1.big em{font-style:normal;color:var(--blue-500)}
+  .lede{font-size:18px;color:var(--slate);max-width:560px;margin-bottom:26px}
+  .heroline{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .pill{
+    background:#fff;border:1px solid var(--line);border-radius:999px;
+    padding:8px 15px;font-size:13px;font-weight:600;color:var(--blue-700);
+    display:inline-flex;align-items:center;gap:8px;box-shadow:var(--shadow);
+  }
+  .pill svg{width:15px;height:15px}
+
+  /* hero mock card */
+  .heromock{
+    background:#fff;border:1px solid var(--line);border-radius:22px;
+    box-shadow:var(--shadow-lg);overflow:hidden;
+  }
+  .hm-top{background:var(--blue-800);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+  .hm-top .l{display:flex;align-items:center;gap:10px;color:#fff;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:14px}
+  .hm-top .l i{width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+  .hm-top .l i svg{width:15px;height:15px}
+  .hm-live{display:flex;align-items:center;gap:6px;color:#9DEFC0;font-size:11px;font-weight:600}
+  .hm-live::before{content:"";width:7px;height:7px;border-radius:50%;background:#34D17F;box-shadow:0 0 0 3px rgba(52,209,127,.25)}
+  .hm-body{padding:16px}
+  .hm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}
+  .hm-stat{background:var(--blue-50);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+  .hm-stat b{font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:800;color:var(--blue-700);display:block;line-height:1}
+  .hm-stat span{font-size:10.5px;color:var(--mute);font-weight:600;letter-spacing:.02em}
+  .hm-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);border-radius:11px;margin-bottom:7px;background:#fff}
+  .hm-row .s{width:8px;height:8px;border-radius:50%;flex:none}
+  .hm-row .t{flex:1;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .hm-row .b{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px}
+  .b-red{background:var(--red-bg);color:var(--red)}
+  .b-amber{background:var(--amber-bg);color:var(--amber)}
+  .b-green{background:var(--green-bg);color:var(--green)}
+
+  /* ---------- section frame ---------- */
+  section{padding:64px 0}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue-500);margin-bottom:14px}
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--blue-500);border-radius:2px}
+  h2.sec{font-size:34px;font-weight:800;color:var(--blue-800);margin-bottom:12px}
+  .sec-lede{font-size:16.5px;color:var(--slate);max-width:680px;margin-bottom:38px}
+
+  /* problem strip */
+  .probs{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .prob{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .prob .num{font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:30px;color:var(--blue-100);position:absolute;top:14px;right:18px}
+  .prob h4{font-size:15.5px;color:var(--blue-800);margin-bottom:7px;max-width:84%}
+  .prob p{font-size:13px;color:var(--slate)}
+  .prob .lbl{font-size:11px;font-weight:700;color:var(--blue-500);letter-spacing:.04em;margin-top:12px;text-transform:uppercase}
+
+  /* modules grid */
+  .modgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .mod{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:transform .25s ease,box-shadow .25s ease;position:relative}
+  .mod:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+  .mod .ic{width:48px;height:48px;border-radius:13px;background:linear-gradient(150deg,var(--blue-500),var(--blue-700));display:grid;place-items:center;margin-bottom:16px;box-shadow:0 10px 20px -10px rgba(37,99,235,.6)}
+  .mod .ic svg{width:25px;height:25px}
+  .mod .kicker{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-400);margin-bottom:6px}
+  .mod h3{font-size:20px;color:var(--blue-800);margin-bottom:10px}
+  .mod p{font-size:14px;color:var(--slate);margin-bottom:14px}
+  .mod ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .mod li{font-size:13.5px;color:var(--ink);display:flex;align-items:flex-start;gap:9px;font-weight:500}
+  .mod li svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--blue-500)}
+  .mod.feat{grid-column:span 2;background:linear-gradient(135deg,var(--blue-700),var(--blue-900));color:#fff;border:none}
+  .mod.feat .kicker{color:#9DB4FF}
+  .mod.feat h3{color:#fff}
+  .mod.feat p{color:#CAD4FF}
+  .mod.feat li{color:#EAF0FF}
+  .mod.feat li svg{color:#7FA0FF}
+  .mod.feat .ic{background:rgba(255,255,255,.14);box-shadow:none}
+  .featwrap{display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center}
+  .ai-vis{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:18px}
+  .ai-vis .ai-h{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9DB4FF;font-weight:700;margin-bottom:12px}
+  .ai-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .ai-stat{text-align:center}
+  .ai-stat b{font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:800;display:block;line-height:1}
+  .ai-stat span{font-size:10px;color:#9DB4FF;font-weight:600;letter-spacing:.05em}
+  .ai-stat.g b{color:#5BE89A}.ai-stat.r b{color:#FF8A93}.ai-stat.w b{color:#fff}
+  .ai-bar{height:9px;border-radius:6px;background:rgba(255,255,255,.1);overflow:hidden;display:flex}
+  .ai-bar i{display:block;height:100%}
+  .ai-legend{display:flex;gap:16px;margin-top:11px;font-size:11px;color:#CAD4FF}
+  .ai-legend span{display:flex;align-items:center;gap:6px}
+  .ai-legend .sq{width:11px;height:11px;border-radius:3px}
+
+  /* infra band */
+  .infra{background:linear-gradient(180deg,#fff,var(--blue-50));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .infra-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .infra-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);text-align:left}
+  .infra-card .badge{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:var(--green);background:var(--green-bg);padding:5px 11px;border-radius:999px;margin-bottom:14px}
+  .infra-card .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .infra-card h4{font-size:18px;color:var(--blue-800);margin-bottom:8px}
+  .infra-card p{font-size:13.5px;color:var(--slate)}
+
+  /* flow */
+  .flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:8px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;min-width:150px;flex:none;box-shadow:var(--shadow);position:relative}
+  .step .st{font-family:Arial,Helvetica,sans-serif;font-size:10.5px;color:var(--mute);margin-bottom:6px;font-weight:600}
+  .step b{font-family:Arial,Helvetica,sans-serif;font-size:14.5px;color:var(--blue-800);display:block;margin-bottom:4px}
+  .step span{font-size:11.5px;color:var(--slate)}
+  .step .top{width:30px;height:4px;border-radius:3px;margin-bottom:11px}
+  .arrow{display:flex;align-items:center;color:var(--blue-400);flex:none;padding:0 4px}
+  .arrow svg{width:24px;height:24px}
+  .flow-note{margin-top:20px;display:flex;gap:18px;flex-wrap:wrap}
+  .fn{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--slate);font-weight:500}
+  .fn b{color:var(--blue-700);font-weight:700}
+
+  /* coverage */
+  .cov{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+  .cov span{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 15px;font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+  .cov span svg{width:17px;height:17px;color:var(--blue-500);flex:none}
+
+  /* metrics */
+  .metrics{background:var(--blue-800);border-radius:24px;padding:42px 38px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;overflow:hidden}
+  .metrics::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:22px 22px}
+  .metric{position:relative;text-align:center}
+  .metric b{font-family:Arial,Helvetica,sans-serif;font-size:42px;font-weight:800;color:#fff;display:block;line-height:1}
+  .metric span{font-size:13px;color:#A9BBFF;font-weight:600;margin-top:6px;display:block}
+
+  /* cta footer */
+  footer{background:var(--blue-900);color:#fff;padding:52px 0 40px;text-align:center}
+  footer .glyph{margin:0 auto 18px}
+  footer h3{font-size:28px;font-weight:800;margin-bottom:10px}
+  footer p{color:#A9BBFF;font-size:15px;max-width:520px;margin:0 auto 22px}
+  .team{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+  .team span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600}
+  .foot-meta{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;color:#7E8DCB;font-size:12.5px;letter-spacing:.04em}
+
+  @media(max-width:900px){
+    .hero .wrap{grid-template-columns:1fr;gap:34px}
+    h1.big{font-size:38px}
+    .probs{grid-template-columns:repeat(2,1fr)}
+    .modgrid{grid-template-columns:1fr}
+    .mod.feat{grid-column:span 1}
+    .featwrap{grid-template-columns:1fr}
+    .infra-grid{grid-template-columns:1fr}
+    .cov{grid-template-columns:1fr}
+    .metrics{grid-template-columns:repeat(2,1fr);padding:32px 24px}
+    h2.sec{font-size:27px}
+  }
+</style>
+</head>
+<body>
+
+<div class="ribbon">GeoMerge × <b>OpenWave / Nərimanov Hakatonu</b> &nbsp;·&nbsp; nerimanov.gov.az</div>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="brandline">
+        <div class="glyph">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.6" fill="#fff"/></svg>
+        </div>
+        <div class="brandtxt"><b>GeoMerge</b><span>Rəqəmsal Nərimanov · Operativ idarəetmə</span></div>
+      </div>
+      <div class="tag"><span class="dot"></span>Nərimanov rayonunun rəqəmsal əkizi</div>
+      <h1 class="big">Problemi çək, göndər və <em>izlə.</em></h1>
+      <p class="lede">Vətəndaş müraciətindən qurumun cavabına qədər — vahid, marşrutlaşmış və auditə açıq bir axın. Milli rəqəmsal ekosistemin üzərində qurulmuş tam işlək platforma.</p>
+      <div class="heroline">
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#2540C8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>IDDA RSD Gateway</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#2540C8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ASAN İmza</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#2540C8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>SIMA İmza</span>
+        <span class="pill"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#2540C8" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="#2540C8" stroke-width="2" stroke-linecap="round"/></svg>AI Qanunsuz Tikili Aşkarlama</span>
+      </div>
+    </div>
+
+    <!-- hero dashboard mock -->
+    <div class="heromock">
+      <div class="hm-top">
+        <div class="l"><i><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></i>Mərkəzi İdarəetmə Paneli</div>
+        <div class="hm-live">Canlı</div>
+      </div>
+      <div class="hm-body">
+        <div class="hm-stats">
+          <div class="hm-stat"><b>142</b><span>Daxil olan</span></div>
+          <div class="hm-stat"><b>7</b><span>Aktiv</span></div>
+          <div class="hm-stat"><b>40</b><span>AI siqnal</span></div>
+        </div>
+        <div class="hm-row"><span class="s" style="background:var(--red)"></span><span class="t">Su sızması — magistral boru qəzası</span><span class="b b-red">Təcili</span></div>
+        <div class="hm-row"><span class="s" style="background:var(--amber)"></span><span class="t">İcazəsiz tikinti — 3 mərtəbəli artırma</span><span class="b b-amber">Yüksək</span></div>
+        <div class="hm-row"><span class="s" style="background:var(--green)"></span><span class="t">Zibil yığılması — konteyner aşıb</span><span class="b b-green">Həll edildi</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== PROBLEMS ===== -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Mərkəzi İdarəetmə Problemi</div>
+    <h2 class="sec">Həll etdiyimiz dörd boşluq</h2>
+    <p class="sec-lede">Nərimanov rayonunun real təsərrüfat və idarəetmə problemləri — koordinasiyadan canlı dataya qədər.</p>
+    <div class="probs">
+      <div class="prob"><span class="num">01</span><h4>Koordinasiya və operativlik çatışmazlığı</h4><p>Qurumlar arasında parçalanmış, yavaş cavab axını.</p><div class="lbl">Mərkəzi idarəetmə</div></div>
+      <div class="prob"><span class="num">02</span><h4>İzləmə və audit mexanizminin olmaması</h4><p>Müraciətlərin taleyi və məsuliyyət görünmür.</p><div class="lbl">Nəzarət</div></div>
+      <div class="prob"><span class="num">03</span><h4>İnfrastruktur nöqsanlarının gec aradan qaldırılması</h4><p>Deadline və SLA olmadan işlər yığılır.</p><div class="lbl">Şəhər təsərrüfatı</div></div>
+      <div class="prob"><span class="num">04</span><h4>Vizual monitorinq və canlı data çatışmazlığı</h4><p>Qərarlar üçün xəritə və analitika yoxdur.</p><div class="lbl">Analitika</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MODULES ===== -->
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="eyebrow">Platforma modulları</div>
+    <h2 class="sec">İşlək prototip — bütün modullar canlı</h2>
+    <p class="sec-lede">Vətəndaş tətbiqindən qurumlararası sənəd dövriyyəsinə və süni intellektə qədər — hər modul real olaraq işləyir.</p>
+
+    <div class="modgrid">
+
+      <!-- 1 mobile citizen app -->
+      <div class="mod">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2.5" width="12" height="19" rx="3" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="18" r="1.1" fill="#fff"/></svg></div>
+        <div class="kicker">Vətəndaş tətbiqi</div>
+        <h3>Rəqəmsal Nərimanov — mobil</h3>
+        <p>Foto/video + GPS geolokasiya + problem kateqoriyası ilə bir toxunuşla müraciət. Vətəndaş öz müraciətlərini addım-addım izləyir.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Kamera · Video · Qalereya + dəqiq məkan</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>“Müraciətlərim” — status və addım jurnalı</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Yaxınlıqdakı problemlər xəritəsi</li>
+        </ul>
+      </div>
+
+      <!-- 2 central panel -->
+      <div class="mod">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2.4" stroke="#fff" stroke-width="1.7"/><path d="M3 9h18M8 18v2M16 18v2M7 21h10" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <div class="kicker">RİH operatoru</div>
+        <h3>Mərkəzi İdarəetmə Paneli</h3>
+        <p>Daxil olan bütün müraciətlərin, təyinatların və kommunal qurumların tək platformadan idarəsi. Telefon (155), tətbiq, saha monitorinqi və AI mənbələri.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Flow status · prioritet · kateqoriya filtrləri</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>İcraçı təyini, deadline, prioritetləşdirmə</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Dəyişməz status jurnalı (audit izi)</li>
+        </ul>
+      </div>
+
+      <!-- 3 IDDA RSD -->
+      <div class="mod">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 3v5h5M10 13h5M10 16h5" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <div class="kicker">RSD inteqrasiyası</div>
+        <h3>IDDA Rəqəmsal Sənəd Dövriyyəsi</h3>
+        <p>Ənənəvi sistemlərdəki status qırılmasını aradan qaldıran qurumlararası canlı (real-time) izləmə. Quruma və vətəndaşa rəsmi sənəd göndərmə.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Göndərildi → Qəbul → İcra → Həll statusu</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>ASAN İmza və SIMA İmza ilə imzalama</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Hər sənəd müraciətə bağlı (NRM ↔ IDDA)</li>
+        </ul>
+      </div>
+
+      <!-- 4 routes / workflow -->
+      <div class="mod">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="2.4" stroke="#fff" stroke-width="1.7"/><circle cx="18" cy="18" r="2.4" stroke="#fff" stroke-width="1.7"/><path d="M8 6h6a4 4 0 014 4v6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+        <div class="kicker">İş axını mühərriki</div>
+        <h3>Marşrutlar və Təsnifat</h3>
+        <p>Hər kateqoriya bir marşruta və SLA-ya bağlıdır. Vizual axın redaktoru ilə statuslar, keçidlər və xarici qurum addımları qurulur.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Namenklatur: KOM-SU, SEH-TİK, ABD-YAS…</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>SLA üzrə deadline + gecikmə xəbərdarlığı</li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>LDAP istifadəçiləri, imtiyazlar, audit</li>
+        </ul>
+      </div>
+
+      <!-- FEATURE: AI -->
+      <div class="mod feat">
+        <div class="featwrap">
+          <div>
+            <div class="ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="1.7"/><path d="M16.5 16.5L21 21" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/><path d="M8 11h6M11 8v6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <div class="kicker">Əsas silahımız · AI</div>
+            <h3>Qanunsuz Tikililərin Aşkarlanması</h3>
+            <p>Fərqli tarixlərdə çəkilmiş yüksək dəqiqlikli peyk təsvirləri süni intellekt alqoritmləri ilə avtomatik müqayisə olunur və kadastr/icazə reyestri ilə tutuşdurularaq qeyri-qanuni tikililər aşkarlanır.</p>
+            <ul>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Peykdən binaların avtomatik aşkarlanması</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>İcazə reyestri ilə tutuşdurma</li>
+              <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Birbaşa müraciət axınına siqnal göndərmə</li>
+            </ul>
+          </div>
+          <div class="ai-vis">
+            <div class="ai-h">Canlı aşkarlama — Nərimanov</div>
+            <div class="ai-stats">
+              <div class="ai-stat g"><b>6387</b><span>İCAZƏLİ</span></div>
+              <div class="ai-stat r"><b>40</b><span>QANUNSUZ</span></div>
+              <div class="ai-stat w"><b>6427</b><span>AŞKARLANAN</span></div>
+            </div>
+            <div class="ai-bar"><i style="width:84%;background:#34D17F"></i><i style="width:16%;background:#FF8A93"></i></div>
+            <div class="ai-legend">
+              <span><i class="sq" style="background:#34D17F"></i>İcazəli (reyestrdə var)</span>
+              <span><i class="sq" style="background:#FF8A93"></i>Qanunsuz (reyestrdə yox)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== NATIONAL INFRASTRUCTURE ===== -->
+<section class="infra">
+  <div class="wrap">
+    <div class="eyebrow">Our Vision · Milli ekosistem</div>
+    <h2 class="sec">Yenidən ixtira etmirik — milli infrastruktur üzərində qururuq</h2>
+    <p class="sec-lede">Mövcud rəqəmsal ekosistemin gücünü milli həllərlə birbaşa platformaya tətbiq edərək dövlət resurslarından səmərəli istifadə edirik.</p>
+    <div class="infra-grid">
+      <div class="infra-card"><div class="badge">İnteqrasiya olunub</div><h4>IDDA RSD Gateway</h4><p>Qurumlararası rəsmi sənəd dövriyyəsi və real-time status izləmə bilavasitə platformadan.</p></div>
+      <div class="infra-card"><div class="badge">İnteqrasiya olunub</div><h4>ASAN İmza</h4><p>Rəsmi cavab və sorğu sənədlərinin hüquqi qüvvəli mobil imza ilə təsdiqi.</p></div>
+      <div class="infra-card"><div class="badge">İnteqrasiya olunub</div><h4>SIMA İmza</h4><p>Vətəndaş və məsul şəxslər üçün alternativ rəqəmsal imza axını.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WORKFLOW ===== -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow">İş axını · Qanunsuz tikinti marşrutu</div>
+    <h2 class="sec">Bir siqnaldan həllə qədər — auditə açıq axın</h2>
+    <p class="sec-lede">AI/şikayət mənbəli pozuntular IDDA Gateway ilə xarici quruma göndərilir, qərar geri qayıdır və icra izlənir.</p>
+    <div class="flow">
+      <div class="step"><div class="top" style="background:var(--blue-400)"></div><div class="st">new · Operator</div><b>Yeni / AI siqnal</b><span>Müraciət qəbul edildi</span></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step"><div class="top" style="background:var(--blue-500)"></div><div class="st">classified</div><b>Təsnifat</b><span>Kateqoriya + prioritet</span></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step"><div class="top" style="background:var(--amber)"></div><div class="st">onsite · Nümayəndə</div><b>Sahə baxışı</b><span>AI təsdiq + foto</span></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step"><div class="top" style="background:#8B5CF6"></div><div class="st">external · IDDA</div><b>Dövlət Şəhərsalma Komitəsi</b><span>IDDA Gateway → göndər</span></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step"><div class="top" style="background:var(--red)"></div><div class="st">inprogress</div><b>İcra / sökülmə</b><span>Qərar gəldi</span></div>
+      <div class="arrow"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="step"><div class="top" style="background:var(--green)"></div><div class="st">resolved · SON</div><b>Həll edildi</b><span>Arxiv + audit</span></div>
+    </div>
+    <div class="flow-note">
+      <div class="fn"><b>9</b> təsnifat namenklaturu</div>
+      <div class="fn"><b>SLA</b> 12–96 saat aralığı</div>
+      <div class="fn"><b>Dəyişməz</b> audit jurnalı</div>
+      <div class="fn"><b>CSV</b> rəqəmsal hesabatlılıq</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COVERAGE ===== -->
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="eyebrow">Əhatə dairəsi</div>
+    <h2 class="sec">Rayon üzrə problem kateqoriyaları</h2>
+    <p class="sec-lede">OpenWave brifində göstərilən bütün hallar platformada təsnifat və marşrut kimi mövcuddur.</p>
+    <div class="cov">
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Kommunal — su təchizatı və qəza</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Drenaj və subasma</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Şəhərsalma — qanunsuz tikinti</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Reklam lövhələri</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Abadlıq — yaşıllıq, ağacaşma</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>İnfrastruktur — fontan, skamya</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Təmizlik — tullantı, konteyner</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sanitar — sahibsiz heyvanlar</span>
+      <span><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Nəqliyyat — yol, işıqfor, asfalt</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== METRICS ===== -->
+<section style="padding-top:8px">
+  <div class="wrap">
+    <div class="metrics">
+      <div class="metric"><b>4</b><span>İnteqrasiya olunmuş milli sistem</span></div>
+      <div class="metric"><b>6</b><span>Status mərhələsi · auditə açıq</span></div>
+      <div class="metric"><b>40</b><span>AI ilə aşkarlanan qanunsuz tikili</span></div>
+      <div class="metric"><b>100%</b><span>Rəqəmsal hesabatlılıq</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="wrap">
+    <div class="glyph">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.6" fill="#fff"/></svg>
+    </div>
+    <h3>GeoMerge — Nərimanov rayonunun rəqəmsal əkizi</h3>
+    <p>Vətəndaş və İcra Hakimiyyəti arasında birbaşa, bürokratik əngəllərdən uzaq rəqəmsal körpü.</p>
+    <div class="team">
+      <span>Elşən Məmmədov · Software &amp; GIS</span>
+      <span>Əli Yusifov · Software</span>
+      <span>Loğman Əlizadə · Design</span>
+      <span>Əli Əliyev · Business Dev</span>
+      <span>Sabir Dadaşov · Business Analytic</span>
+    </div>
+    <div class="foot-meta">DİQQƏTİNİZ ÜÇÜN TƏŞƏKKÜRLƏR · OPENWAVE / NƏRİMANOV HAKATONU</div>
+  </div>
+</footer>
+
+</body>
+</html>
